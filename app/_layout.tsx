@@ -1,23 +1,20 @@
-import styled, { ThemeProvider } from "styled-components/native";
 import { Slot } from "expo-router";
-import { darkTheme, lightTheme } from "@/constants/theme";
 import { useThemeStore } from "@/stores/theme/useThemeStore";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import "../styles/global.css";
+import { View } from "react-native";
+import React from "react";
 
 function RootLayout() {
     const { theme } = useThemeStore();
 
     return (
-        <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
-            <RootContainer>
+        <SafeAreaProvider>
+            <View className={`${theme} flex-1 bg-background-default`}>
                 <Slot />
-            </RootContainer>
-        </ThemeProvider>
+            </View>
+        </SafeAreaProvider>
     );
 }
 
 export default RootLayout;
-
-const RootContainer = styled.View`
-    flex: 1;
-    background-color: ${props => props.theme.colors.background.default};
-`;
