@@ -14,8 +14,12 @@ export const registerUserSchema = z
             .min(2, "닉네임은 2자 이상 입력해주세요.")
             .max(10, "닉네임은 10자 이하로 입력해주세요."),
         email: z.email("올바른 이메일 형식이 아닙니다."),
-        phoneNumber: z.string().regex(phoneRegex, "올바른 전화번호 형식이 아닙니다.").optional(),
-        birthdate: z.string().optional(),
+        phoneNumber: z
+            .string()
+            .regex(phoneRegex, "올바른 전화번호 형식이 아닙니다.")
+            .or(z.literal(""))
+            .optional(),
+        birthdate: z.string().or(z.literal("")).optional(),
         gender: z.enum(UserGender, "성별은 필수값입니다."),
     })
     .refine(data => data.password === data.passwordConfirm, {

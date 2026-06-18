@@ -2,12 +2,14 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ScrollView, KeyboardAvoidingView, Platform, Text } from "react-native";
+import { ScrollView, KeyboardAvoidingView, Platform, Text, Alert } from "react-native";
 import { registerUserSchema, RegisterUserInputType } from "@/schemas/user/registerUserSchema";
 import Card from "@/components/common/card/Card";
 import Button from "@/components/common/button/Button";
 import InputGroup from "@/components/common/input/InputGroup";
 import SelectGroup from "@/components/common/select/SelectGroup";
+import { isAxiosError } from "axios";
+import userApi from "@/api/user/userApi";
 
 export default function AuthRegisterScreen() {
     const router = useRouter();
@@ -15,6 +17,7 @@ export default function AuthRegisterScreen() {
     const {
         control,
         handleSubmit,
+        setError,
         formState: { errors },
     } = useForm<RegisterUserInputType>({
         resolver: zodResolver(registerUserSchema),
@@ -32,9 +35,44 @@ export default function AuthRegisterScreen() {
         mode: "onTouched",
     });
 
-    const onSubmit = (data: RegisterUserInputType) => {
-        console.log("회원가입 요청 데이터:", data);
-        // 여기에 백엔드 API 호출(axios 등) 로직이 연동됩니다.
+    const onSubmit = async (data: RegisterUserInputType) => {
+        try {
+            const { passwordConfirm, ...submitData } = data;
+
+            const payload = {
+                ...submitData,
+                phoneNumber: submitData.phoneNumber === "" ? undefined : submitData.phoneNumber,
+                birthdate: submitData.birthdate === "" ? undefined : submitData.birthdate,
+            };
+
+            await userApi.createUser(payload);
+
+            if (Platform.OS === "web") {
+                // 웹: 표준 브라우저 경고창 띄운 후 바로 이동
+                window.alert("회원가입이 완료되었습니다. 로그인을 진행해주세요.");
+                router.replace("/auth/login");
+            } else {
+                // 앱: 네이티브 팝업 띄우고, 확인 버튼을 눌렀을 때 이동
+                Alert.alert("가입 완료", "회원가입이 완료되었습니다. 로그인을 진행해주세요.", [
+                    {
+                        text: "확인",
+                        onPress: () => router.replace("/auth/login"),
+                    },
+                ]);
+            }
+        } catch (error) {
+            console.log(error);
+
+            let errorMessage = "회원가입 중 오류가 발생했습니다.";
+
+            if (isAxiosError(error)) {
+                errorMessage = error.response?.data?.message || errorMessage;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            setError("root", { message: errorMessage });
+        }
     };
 
     // 모바일을 중점으로 하는 React-Native에서는 가상 키보드가 입력창을 가리는 현상을 방지하기 위해
@@ -214,6 +252,12 @@ export default function AuthRegisterScreen() {
                             />
                         )}
                     />
+
+                    {errors.root?.message && (
+                        <Text className="text-error-main text-sm text-center font-medium mt-2 mb-4">
+                            {errors.root.message}
+                        </Text>
+                    )}
 
                     <Button
                         color="primary"

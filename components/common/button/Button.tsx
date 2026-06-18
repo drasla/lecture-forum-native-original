@@ -1,4 +1,3 @@
-// /components/common/button/Button.tsx
 import { Pressable, Text, PressableProps } from "react-native";
 import { twMerge } from "tailwind-merge";
 import { BUTTON_SIZE_STYLES } from "@/constants/style";
