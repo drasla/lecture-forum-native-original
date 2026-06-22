@@ -75,7 +75,7 @@ function Select({
                         style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
                         onPress={() => setModalVisible(false)}>
                         <Pressable
-                            className="w-full bg-background-paper rounded-xl overflow-hidden max-h-[60%]"
+                            className="w-full max-w-sm bg-background-paper rounded-xl overflow-hidden max-h-[60%]"
                             onPress={() => {}}>
                             <FlatList
                                 data={options}
@@ -97,7 +97,11 @@ function Select({
                                             {item.label}
                                         </Text>
                                         {item.value === value && (
-                                            <Text className="text-primary-main">✓</Text>
+                                            <Ionicons
+                                                name="checkmark"
+                                                size={20}
+                                                className="text-primary-main"
+                                            />
                                         )}
                                     </Pressable>
                                 )}

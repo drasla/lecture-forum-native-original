@@ -7,7 +7,7 @@ import useAuthStore from "@/stores/auth/useAuthStore";
 
 export default function MainHeader() {
     const { theme, onChangeTheme } = useThemeStore();
-    const { isLoggedIn, logout } = useAuthStore();
+    const { isLoggedIn, user, logout } = useAuthStore();
 
     const handleLogout = () => {
         logout();
@@ -33,12 +33,19 @@ export default function MainHeader() {
                     </Pressable>
 
                     {isLoggedIn ? (
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onPress={handleLogout}>
-                            로그아웃
-                        </Button>
+                        <View className="flex-row items-center gap-2">
+                            {user?.role === "ADMIN" && (
+                                <Link href="/admin" asChild>
+                                    <Button variant="outlined" color="primary">
+                                        관리자 센터
+                                    </Button>
+                                </Link>
+                            )}
+
+                            <Button variant="contained" color="error" onPress={handleLogout}>
+                                로그아웃
+                            </Button>
+                        </View>
                     ) : (
                         <View className="flex-row items-center gap-1">
                             <Link href="/auth/login" asChild>
