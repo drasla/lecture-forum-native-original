@@ -54,7 +54,11 @@ function AdminAsideMobile() {
                             {/* 네비게이션 리스트 */}
                             <View className="px-3 py-4 gap-1">
                                 {ADMIN_NAV_LIST.map(item => {
-                                    const isActive = pathname === item.path;
+                                    const isActive =
+                                        item.path === "/"
+                                            ? pathname === "/" // 메인 홈은 정확히 일치할 때만
+                                            : pathname === item.path ||
+                                              pathname.startsWith(`${item.path}/`);
                                     return (
                                         <Link
                                             href={item.path}
