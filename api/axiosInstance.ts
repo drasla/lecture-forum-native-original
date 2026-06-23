@@ -1,6 +1,7 @@
 import axios from "axios";
 import useAuthStore from "@/stores/auth/useAuthStore";
 import { Alert, Platform } from "react-native";
+import { router } from "expo-router";
 
 // Expo 환경에서는 VITE_ 대신 EXPO_PUBLIC_ 접두사가 붙은 환경 변수를 사용합니다.
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "";
@@ -45,9 +46,10 @@ api.interceptors.response.use(
                 // 2. 사용자에게 알림을 띄웁니다. (웹/앱 분기 처리)
                 if (Platform.OS === "web") {
                     window.alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+                    router.push("/auth/login");
                 } else {
                     Alert.alert("인증 만료", "로그인이 만료되었습니다. 다시 로그인해주세요.", [
-                        { text: "확인" },
+                        { text: "확인", onPress: () => router.push("/auth/login") },
                     ]);
                 }
             }
