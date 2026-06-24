@@ -1,5 +1,5 @@
 import { View, Text, Pressable } from "react-native";
-import { Link, usePathname } from "expo-router";
+import { Link, usePathname, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { twMerge } from "tailwind-merge";
 import useAuthStore from "@/stores/auth/useAuthStore";
@@ -8,6 +8,7 @@ import { ADMIN_NAV_LIST } from "@/constants/menu";
 
 function AdminAsideDesktop() {
     const pathname = usePathname();
+    const router = useRouter();
     const { user, logout } = useAuthStore();
 
     return (
@@ -27,7 +28,7 @@ function AdminAsideDesktop() {
                             item.path === "/"
                                 ? pathname === "/" // 메인 홈은 정확히 일치할 때만
                                 : pathname === item.path || pathname.startsWith(`${item.path}/`);
-                        
+
                         return (
                             <Link href={item.path} key={item.path} asChild>
                                 <Pressable
@@ -68,7 +69,14 @@ function AdminAsideDesktop() {
                         <Text className="text-xs text-text-secondary">{user?.email}</Text>
                     </View>
                 </View>
-                <Button variant={"outlined"} color={"error"} fullWidth={true} onPress={logout}>
+                <Button
+                    variant={"outlined"}
+                    color={"error"}
+                    fullWidth={true}
+                    onPress={() => {
+                        logout();
+                        router.replace("/");
+                    }}>
                     로그아웃
                 </Button>
             </View>

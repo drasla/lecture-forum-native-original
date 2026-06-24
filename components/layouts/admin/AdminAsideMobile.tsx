@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, Pressable, Modal, useWindowDimensions } from "react-native";
-import { Link, usePathname } from "expo-router";
+import { Link, router, usePathname } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { twMerge } from "tailwind-merge";
 import useAuthStore from "@/stores/auth/useAuthStore";
@@ -121,6 +121,9 @@ function AdminAsideMobile() {
                                 onPress={() => {
                                     setMenuOpen(false);
                                     logout();
+                                    setTimeout(() => {
+                                        router.replace("/");
+                                    }, 100);
                                 }}>
                                 로그아웃
                             </Button>
