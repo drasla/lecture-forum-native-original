@@ -80,11 +80,13 @@ function Select({
                             <FlatList
                                 data={options}
                                 keyExtractor={item => String(item.value)}
-                                renderItem={({ item }) => (
+                                renderItem={({ item, index }) => (
                                     <Pressable
                                         onPress={() => handleSelect(item.value)}
                                         className={twMerge(
                                             "px-5 py-4 border-b border-divider flex-row justify-between",
+                                            index !== options.length - 1 &&
+                                                "border-b border-divider",
                                             item.value === value && "bg-primary-main/10",
                                         )}>
                                         <Text

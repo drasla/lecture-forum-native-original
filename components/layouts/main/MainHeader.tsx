@@ -14,7 +14,7 @@ export default function MainHeader() {
     };
 
     return (
-        <View className="bg-background-paper w-full min-h-[64px] border-b border-divider justify-center">
+        <View className="bg-background-paper w-full min-h-16 border-b border-divider justify-center">
             <View className="flex-row items-center justify-between w-full max-w-[1000px] self-center px-4 gap-3">
                 <Link href="/" asChild>
                     <Pressable className="flex-row items-center gap-1.5">

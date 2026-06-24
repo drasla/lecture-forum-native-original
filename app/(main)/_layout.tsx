@@ -3,15 +3,6 @@ import { Stack } from "expo-router";
 import MainHeader from "@/components/layouts/main/MainHeader";
 import MainFooter from "@/components/layouts/main/MainFooter";
 import React from "react";
-import { cssInterop } from "react-native-css-interop";
-import { Ionicons } from "@expo/vector-icons";
-
-cssInterop(Ionicons, {
-    className: {
-        target: "style",
-        nativeStyleToProp: { color: true },
-    },
-});
 
 function MainLayout() {
     return (

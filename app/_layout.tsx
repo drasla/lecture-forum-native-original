@@ -5,8 +5,17 @@ import "../styles/global.css";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
+import { cssInterop } from "react-native-css-interop";
+import { Ionicons } from "@expo/vector-icons";
 import userApi from "@/api/user/userApi";
 import useAuthStore from "@/stores/auth/useAuthStore";
+
+cssInterop(Ionicons, {
+    className: {
+        target: "style",
+        nativeStyleToProp: { color: true },
+    },
+});
 
 function RootLayout() {
     const { token, logout } = useAuthStore();
@@ -16,7 +25,7 @@ function RootLayout() {
 
     useEffect(() => {
         setColorScheme(theme);
-    }, [theme]);
+    }, [theme, setColorScheme]);
 
     useEffect(() => {
         const initializeApp = async () => {

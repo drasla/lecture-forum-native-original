@@ -1,7 +1,7 @@
-import { Text } from "react-native";
+import { View } from "react-native";
 
-function AdminDashboardPage() {
-    return <Text>Dashboard</Text>;
+function AdminIndex() {
+    return <View>View</View>;
 }
 
-export default AdminDashboardPage;
+export default AdminIndex;

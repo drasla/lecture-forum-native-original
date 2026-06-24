@@ -19,7 +19,11 @@ export const registerUserSchema = z
             .regex(phoneRegex, "올바른 전화번호 형식이 아닙니다.")
             .or(z.literal(""))
             .optional(),
-        birthdate: z.string().or(z.literal("")).optional(),
+        birthdate: z
+            .string()
+            .regex(/^\d{8}$/, "생년월일은 8자리 숫자(YYYYMMDD)로 입력해주세요.")
+            .optional()
+            .or(z.literal("")),
         gender: z.enum(UserGender, "성별은 필수값입니다."),
     })
     .refine(data => data.password === data.passwordConfirm, {
