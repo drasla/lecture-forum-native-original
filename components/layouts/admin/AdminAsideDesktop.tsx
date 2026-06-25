@@ -35,20 +35,20 @@ function AdminAsideDesktop() {
                                     className={twMerge(
                                         "flex-row items-center gap-3 px-4 py-3.5 rounded-xl transition-all",
                                         isActive
-                                            ? "bg-primary-main/10"
+                                            ? "bg-primary-main"
                                             : "hover:bg-background-default",
                                     )}>
                                     <Feather
                                         name={item.icon as any}
                                         size={18}
                                         className={
-                                            isActive ? "text-primary-main" : "text-text-secondary"
+                                            isActive ? "text-primary-contrastText" : "text-text-secondary"
                                         }
                                     />
                                     <Text
                                         className={twMerge(
                                             "font-bold text-[15px]",
-                                            isActive ? "text-primary-main" : "text-text-default",
+                                            isActive ? "text-primary-contrastText" : "text-text-default",
                                         )}>
                                         {item.label}
                                     </Text>

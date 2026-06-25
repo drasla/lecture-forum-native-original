@@ -84,7 +84,7 @@ function Pagination({
     const shapeClass = shape === "round" ? "rounded-full" : "rounded-md";
 
     return (
-        <View className="flex-row items-center justify-center gap-1 md:gap-2 mt-8">
+        <View className="flex-1 flex-row items-center justify-center gap-1 md:gap-2 mt-8">
             {/* 왼쪽 화살표 */}
             <Pressable
                 disabled={currentPage === 1}

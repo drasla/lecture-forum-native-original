@@ -1,7 +1,239 @@
-import { Text } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import { twMerge } from "tailwind-merge";
 
-function AdminNoticesPage() {
-    return <Text>notice</Text>;
+import noticeApi from "@/api/user/noticeApi"; // 💡 조회용 API
+import adminNoticeApi from "@/api/admin/adminNoticeApi"; // 💡 삭제용 API
+import { Notice } from "@/types/notice";
+
+import Title from "@/components/common/title/Title";
+import Button from "@/components/common/button/Button";
+import Card from "@/components/common/card/Card";
+import TextComponent from "@/components/common/text/TextComponent";
+import Pagination from "@/components/common/pagination/Pagination";
+import LoadingIndicator from "@/components/common/loading/LoadingIndicator";
+
+function AdminNoticeListPage() {
+    const router = useRouter();
+    const [list, setList] = useState<Notice[]>([]);
+    const [total, setTotal] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const { page, size } = useLocalSearchParams<{ page: string; size: string }>();
+    const currentPage = Number(page) || 1;
+    const pageSize = Number(size) || 20;
+
+    const loadNotices = async (targetPage: number, targetSize: number) => {
+        try {
+            setIsLoading(true);
+            // 💡 조회는 사용자/공통 API인 noticeApi를 사용합니다.
+            const result = await noticeApi.getNoticeList(targetPage, targetSize);
+            setList(result.list);
+            setTotal(result.total);
+        } catch (error) {
+            console.error(error);
+            if (Platform.OS === "web") {
+                window.alert("공지사항 목록을 불러오는데 실패했습니다.");
+            } else {
+                Alert.alert("오류", "공지사항 목록을 불러오는데 실패했습니다.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadNotices(currentPage, pageSize).then(() => {});
+    }, [currentPage, pageSize]);
+
+    const handleDeleteNotice = async (id: number) => {
+        const executeDelete = async () => {
+            try {
+                // 💡 삭제는 관리자 전용 API인 adminNoticeApi를 사용합니다.
+                await adminNoticeApi.deleteNotice(id);
+                loadNotices(currentPage, pageSize).then(() => {});
+            } catch (error) {
+                console.error(error);
+                if (Platform.OS === "web") {
+                    window.alert("공지사항 삭제에 실패했습니다.");
+                } else {
+                    Alert.alert("오류", "공지사항 삭제에 실패했습니다.");
+                }
+            }
+        };
+
+        if (Platform.OS === "web") {
+            if (window.confirm("정말 이 공지사항을 삭제하시겠습니까?")) {
+                executeDelete().then(() => {});
+            }
+        } else {
+            Alert.alert("공지사항 삭제", "정말 이 공지사항을 삭제하시겠습니까?", [
+                { text: "취소", style: "cancel" },
+                { text: "삭제", style: "destructive", onPress: executeDelete },
+            ]);
+        }
+    };
+
+    const totalPage = Math.ceil(total / pageSize) || 1;
+
+    return (
+        <View className={twMerge("flex-1", "w-full", "bg-background-default")}>
+            <Title
+                title={"공지사항 관리"}
+                description={"서비스의 주요 소식 및 공지사항을 관리합니다."}>
+                <Button
+                    variant={"contained"}
+                    color={"primary"}
+                    onPress={() => router.push("/admin/notices/create")}>
+                    + 공지 등록
+                </Button>
+            </Title>
+
+            <Card className={"p-0 overflow-hidden flex-1 flex-col"}>
+                {/* 테이블 헤더 */}
+                <View
+                    className={twMerge(
+                        ["flex-row", "items-center", "px-4", "py-3"],
+                        ["border-b", "border-divider", "bg-background-default"],
+                    )}>
+                    <TextComponent
+                        className={twMerge(
+                            ["hidden", "md:flex", "w-12"],
+                            ["font-bold", "text-text-secondary", "text-center"],
+                        )}>
+                        ID
+                    </TextComponent>
+                    <TextComponent
+                        className={twMerge(
+                            ["flex-1"],
+                            ["font-bold", "text-text-secondary", "px-2"],
+                        )}>
+                        제목
+                    </TextComponent>
+                    <TextComponent
+                        className={twMerge(
+                            ["w-24"],
+                            ["font-bold", "text-text-secondary", "text-center"],
+                        )}>
+                        등록일
+                    </TextComponent>
+                    <TextComponent
+                        className={twMerge(
+                            ["w-20"],
+                            ["font-bold", "text-text-secondary", "text-center"],
+                        )}>
+                        관리
+                    </TextComponent>
+                </View>
+
+                {/* 테이블 바디 */}
+                <ScrollView className={"flex-1"}>
+                    {isLoading ? (
+                        <LoadingIndicator />
+                    ) : list.length === 0 ? (
+                        <View className={twMerge("py-10", "justify-center", "items-center")}>
+                            <TextComponent className={"text-text-secondary"}>
+                                등록된 공지사항이 없습니다.
+                            </TextComponent>
+                        </View>
+                    ) : (
+                        list.map((item, index) => {
+                            const isLast = index === list.length - 1;
+
+                            return (
+                                <View
+                                    key={item.id}
+                                    className={twMerge(
+                                        [
+                                            "flex-row",
+                                            "items-center",
+                                            "px-4",
+                                            "py-3",
+                                            "transition-all",
+                                            "hover:bg-background-default",
+                                        ],
+                                        !isLast && ["border-b", "border-divider"],
+                                    )}>
+                                    <TextComponent
+                                        className={twMerge(
+                                            ["hidden", "md:flex", "w-12"],
+                                            ["text-center", "text-text-secondary"],
+                                        )}>
+                                        {item.id}
+                                    </TextComponent>
+
+                                    <View
+                                        className={twMerge(["flex-1"], ["px-2", "justify-center"])}>
+                                        <TextComponent className={"font-bold"} numberOfLines={1}>
+                                            {item.title}
+                                        </TextComponent>
+                                    </View>
+
+                                    <TextComponent
+                                        className={twMerge(
+                                            ["w-24"],
+                                            ["text-sm", "text-text-secondary", "text-center"],
+                                        )}>
+                                        {item.createdAt.substring(0, 10)}
+                                    </TextComponent>
+
+                                    <View
+                                        className={twMerge(
+                                            ["w-20"],
+                                            ["flex-row", "items-center", "justify-center", "gap-2"],
+                                        )}>
+                                        {/* 수정 버튼 */}
+                                        <Pressable
+                                            className={"p-1.5"}
+                                            onPress={() =>
+                                                router.push(`/admin/notices/${item.id}`)
+                                            }>
+                                            <Feather
+                                                name={"edit-2"}
+                                                size={16}
+                                                className={
+                                                    "text-text-secondary hover:text-primary-main"
+                                                }
+                                            />
+                                        </Pressable>
+                                        {/* 삭제 버튼 */}
+                                        <Pressable
+                                            className={"p-1.5"}
+                                            onPress={() => handleDeleteNotice(item.id)}>
+                                            <Feather
+                                                name={"trash-2"}
+                                                size={16}
+                                                className={"text-error-main hover:opacity-70"}
+                                            />
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            );
+                        })
+                    )}
+                </ScrollView>
+
+                {/* 페이지네이션 */}
+                {!isLoading && list.length > 0 && (
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPage={totalPage}
+                        onPageChange={newPage => {
+                            router.setParams({
+                                page: String(newPage),
+                                size: String(pageSize),
+                            });
+                        }}
+                        size={"medium"}
+                        color={"primary"}
+                        shape={"square"}
+                    />
+                )}
+            </Card>
+        </View>
+    );
 }
 
-export default AdminNoticesPage;
+export default AdminNoticeListPage;

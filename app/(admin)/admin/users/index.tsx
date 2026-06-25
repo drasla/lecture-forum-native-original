@@ -204,24 +204,21 @@ function AdminUserListPage() {
                         })
                     )}
                 </ScrollView>
-
                 {/* 하단 페이지네이션 */}
                 {!isLoading && users.length > 0 && (
-                    <View className="py-4 border-t border-divider bg-background-paper">
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPage={totalPage}
-                            onPageChange={newPage =>
-                                router.setParams({
-                                    page: String(newPage),
-                                    size: String(pageSize),
-                                })
-                            }
-                            size="medium"
-                            color="primary"
-                            shape="square"
-                        />
-                    </View>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPage={totalPage}
+                        onPageChange={newPage =>
+                            router.setParams({
+                                page: String(newPage),
+                                size: String(pageSize),
+                            })
+                        }
+                        size="medium"
+                        color="primary"
+                        shape="square"
+                    />
                 )}
             </View>
         </View>
