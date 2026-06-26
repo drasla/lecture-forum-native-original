@@ -9,3 +9,10 @@ export type PaginationResponseType<T> = {
     total: number;
     list: T[];
 };
+
+export type MenuType = {
+    path: string;
+    label: string;
+    icon?: string;
+    isDanger?: boolean;
+}

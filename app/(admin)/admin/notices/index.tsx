@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { Alert, Platform, Pressable, ScrollView, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import { twMerge } from "tailwind-merge";
 
-import noticeApi from "@/api/user/noticeApi"; // 💡 조회용 API
-import adminNoticeApi from "@/api/admin/adminNoticeApi"; // 💡 삭제용 API
+import noticeApi from "@/api/user/noticeApi";
 import { Notice } from "@/types/notice";
 
 import Title from "@/components/common/title/Title";
@@ -28,7 +26,6 @@ function AdminNoticeListPage() {
     const loadNotices = async (targetPage: number, targetSize: number) => {
         try {
             setIsLoading(true);
-            // 💡 조회는 사용자/공통 API인 noticeApi를 사용합니다.
             const result = await noticeApi.getNoticeList(targetPage, targetSize);
             setList(result.list);
             setTotal(result.total);
@@ -48,34 +45,6 @@ function AdminNoticeListPage() {
         loadNotices(currentPage, pageSize).then(() => {});
     }, [currentPage, pageSize]);
 
-    const handleDeleteNotice = async (id: number) => {
-        const executeDelete = async () => {
-            try {
-                // 💡 삭제는 관리자 전용 API인 adminNoticeApi를 사용합니다.
-                await adminNoticeApi.deleteNotice(id);
-                loadNotices(currentPage, pageSize).then(() => {});
-            } catch (error) {
-                console.error(error);
-                if (Platform.OS === "web") {
-                    window.alert("공지사항 삭제에 실패했습니다.");
-                } else {
-                    Alert.alert("오류", "공지사항 삭제에 실패했습니다.");
-                }
-            }
-        };
-
-        if (Platform.OS === "web") {
-            if (window.confirm("정말 이 공지사항을 삭제하시겠습니까?")) {
-                executeDelete().then(() => {});
-            }
-        } else {
-            Alert.alert("공지사항 삭제", "정말 이 공지사항을 삭제하시겠습니까?", [
-                { text: "취소", style: "cancel" },
-                { text: "삭제", style: "destructive", onPress: executeDelete },
-            ]);
-        }
-    };
-
     const totalPage = Math.ceil(total / pageSize) || 1;
 
     return (
@@ -92,7 +61,7 @@ function AdminNoticeListPage() {
             </Title>
 
             <Card className={"p-0 overflow-hidden flex-1 flex-col"}>
-                {/* 테이블 헤더 */}
+                {/* 테이블 헤더 (관리 칼럼 제거) */}
                 <View
                     className={twMerge(
                         ["flex-row", "items-center", "px-4", "py-3"],
@@ -118,13 +87,6 @@ function AdminNoticeListPage() {
                             ["font-bold", "text-text-secondary", "text-center"],
                         )}>
                         등록일
-                    </TextComponent>
-                    <TextComponent
-                        className={twMerge(
-                            ["w-20"],
-                            ["font-bold", "text-text-secondary", "text-center"],
-                        )}>
-                        관리
                     </TextComponent>
                 </View>
 
@@ -164,12 +126,19 @@ function AdminNoticeListPage() {
                                         {item.id}
                                     </TextComponent>
 
-                                    <View
-                                        className={twMerge(["flex-1"], ["px-2", "justify-center"])}>
-                                        <TextComponent className={"font-bold"} numberOfLines={1}>
+                                    {/* 제목 클릭 시 상세 페이지로 이동 */}
+                                    <Pressable
+                                        className={twMerge(["flex-1"], ["px-2", "justify-center"])}
+                                        onPress={() => router.push(`/admin/notices/${item.id}`)}>
+                                        <TextComponent
+                                            className={
+                                                "font-bold hover:text-primary-main transition-colors"
+                                            }
+                                            numberOfLines={1}>
                                             {item.title}
                                         </TextComponent>
-                                    </View>
+                                    </Pressable>
+
 
                                     <TextComponent
                                         className={twMerge(
@@ -178,37 +147,6 @@ function AdminNoticeListPage() {
                                         )}>
                                         {item.createdAt.substring(0, 10)}
                                     </TextComponent>
-
-                                    <View
-                                        className={twMerge(
-                                            ["w-20"],
-                                            ["flex-row", "items-center", "justify-center", "gap-2"],
-                                        )}>
-                                        {/* 수정 버튼 */}
-                                        <Pressable
-                                            className={"p-1.5"}
-                                            onPress={() =>
-                                                router.push(`/admin/notices/${item.id}`)
-                                            }>
-                                            <Feather
-                                                name={"edit-2"}
-                                                size={16}
-                                                className={
-                                                    "text-text-secondary hover:text-primary-main"
-                                                }
-                                            />
-                                        </Pressable>
-                                        {/* 삭제 버튼 */}
-                                        <Pressable
-                                            className={"p-1.5"}
-                                            onPress={() => handleDeleteNotice(item.id)}>
-                                            <Feather
-                                                name={"trash-2"}
-                                                size={16}
-                                                className={"text-error-main hover:opacity-70"}
-                                            />
-                                        </Pressable>
-                                    </View>
                                 </View>
                             );
                         })
