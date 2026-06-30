@@ -121,7 +121,7 @@ function AdminNoticeDetailPage() {
                         </Button>
                         <Button
                             variant="contained"
-                            color="primary"
+                            color="warning"
                             // 💡 이전 턴에서 만든 수정 폼의 경로를 update로 맞췄다고 가정합니다.
                             onPress={() => router.push(`/admin/notices/${notice.id}/update`)}>
                             수정

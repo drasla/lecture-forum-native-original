@@ -14,7 +14,7 @@ function MainLayout() {
             {/* Stack에 flex-1을 주어 남은 공간을 모두 차지하게 합니다. */}
             {isMobile ? <MainHeaderMobile /> : <MainHeaderDesktop />}
 
-            <View className="flex-1">
+            <View className="flex-1 w-full max-w-7xl self-center p-4">
                 <Stack screenOptions={{ headerShown: false }} />
             </View>
 
